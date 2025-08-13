@@ -1,0 +1,20 @@
+{
+  "name": "messaging-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.11.1",
+  "scripts": {
+    "dev:backend": "pnpm --filter @app/backend dev",
+    "build:backend": "pnpm --filter @app/backend build",
+    "start:backend": "pnpm --filter @app/backend start",
+    "dev:mobile": "pnpm --filter @app/mobile start",
+    "install:all": "pnpm install",
+    "db:up": "docker compose up -d db redis",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @app/backend db:migrate",
+    "db:studio": "pnpm --filter @app/backend db:studio"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
