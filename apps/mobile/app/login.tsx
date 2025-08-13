@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, SafeAreaView, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
+import { setItem } from '../src/storage';
 
 const API_URL = (Constants.expoConfig?.extra as any)?.API_URL || 'http://localhost:4000';
 
@@ -16,7 +17,7 @@ export default function LoginScreen() {
       const res = await fetch(`${API_URL}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Hata');
-      if (typeof localStorage !== 'undefined') localStorage.setItem('token', data.token);
+      await setItem('token', data.token);
       router.replace('/');
     } catch (e: any) {
       Alert.alert('Giriş başarısız', e.message);
@@ -28,7 +29,7 @@ export default function LoginScreen() {
       const res = await fetch(`${API_URL}/api/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, displayName }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Hata');
-      if (typeof localStorage !== 'undefined') localStorage.setItem('token', data.token);
+      await setItem('token', data.token);
       router.replace('/');
     } catch (e: any) {
       Alert.alert('Kayıt başarısız', e.message);

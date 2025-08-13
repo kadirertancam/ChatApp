@@ -11,7 +11,8 @@ import { z } from 'zod';
 import Redis from 'ioredis';
 
 const prisma = new PrismaClient();
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+const redisUrl = process.env.REDIS_URL;
+const redis = redisUrl ? new Redis(redisUrl) : null;
 
 const app = express();
 app.use(cors({ origin: '*'}));

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, SafeAreaView, Text, View, Button } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
+import { getItem } from '../src/storage';
 
 const API_URL = (Constants.expoConfig?.extra as any)?.API_URL || 'http://localhost:4000';
 
@@ -11,8 +12,8 @@ export default function HomeScreen() {
   const [conversations, setConversations] = useState<any[]>([]);
   const router = useRouter();
 
-  const fetchConversations = () => {
-    const t = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+  const fetchConversations = async () => {
+    const t = await getItem('token');
     setToken(t);
     if (!t) {
       router.replace('/login');

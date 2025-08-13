@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Button, FlatList, SafeAreaView, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import io from 'socket.io-client';
 import Constants from 'expo-constants';
+import { getItem } from '../../src/storage';
 
 const API_URL = (Constants.expoConfig?.extra as any)?.API_URL || 'http://localhost:4000';
 
@@ -15,22 +16,24 @@ export default function ChatScreen() {
   const socketRef = useRef<ReturnType<typeof io> | null>(null);
 
   useEffect(() => {
-    const t = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
-    setToken(t);
-    if (!t) return;
-    fetch(`${API_URL}/api/conversations/${id}/messages`, { headers: { Authorization: `Bearer ${t}` } })
-      .then(r => r.json())
-      .then(d => setMessages(d.messages || []))
-      .finally(() => setLoading(false));
+    (async () => {
+      const t = await getItem('token');
+      setToken(t);
+      if (!t) return;
+      fetch(`${API_URL}/api/conversations/${id}/messages`, { headers: { Authorization: `Bearer ${t}` } })
+        .then(r => r.json())
+        .then(d => setMessages(d.messages || []))
+        .finally(() => setLoading(false));
 
-    const s = io(API_URL, { autoConnect: true, auth: { token: t } });
-    socketRef.current = s;
-    s.emit('joinConversation', String(id));
-    s.on('message', (msg: any) => {
-      if (msg.conversationId === id) setMessages(prev => [...prev, msg]);
-    });
+      const s = io(API_URL, { autoConnect: true, auth: { token: t } });
+      socketRef.current = s;
+      s.emit('joinConversation', String(id));
+      s.on('message', (msg: any) => {
+        if (msg.conversationId === id) setMessages(prev => [...prev, msg]);
+      });
+    })();
 
-    return () => { s.disconnect(); };
+    return () => { socketRef.current?.disconnect(); };
   }, [id]);
 
   const send = () => {
